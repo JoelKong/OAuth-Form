@@ -1,8 +1,42 @@
-import { React, useState } from "react";
-import { FcGoogle } from "react-icons/fc";
+import { React, useState, useEffect } from "react";
 
 export const Login = () => {
+  //States
   const [input, setInput] = useState({ keyInput: "", password: "" });
+
+  //Google OAuth
+  useEffect(() => {
+    /* global google */
+    google.accounts.id.initialize({
+      client_id:
+        "608395486036-7l6g1055nppme7h9gcdno5f18r6lpech.apps.googleusercontent.com",
+      callback: handleCallbackResponse,
+    });
+
+    google.accounts.id.renderButton(
+      document.getElementById("login-form-google"),
+      {
+        theme: "outline",
+        width: "300px",
+        text: "continue_with",
+        onsuccess: onSuccess,
+        onfailure: onFailure,
+      }
+    );
+  }, []);
+
+  const handleCallbackResponse = (response) => {
+    console.log("Encoded JWT ID token: " + response.credential);
+  };
+
+  //Getting google data
+  const onSuccess = (googleUser) => {
+    console.log("Logged in as: " + googleUser.getBasicProfile().getName());
+  };
+
+  const onFailure = (error) => {
+    console.log(error);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -15,7 +49,6 @@ export const Login = () => {
   };
 
   const forgotPassword = () => {};
-  const googleAuth = () => {};
 
   return (
     <main className="background">
@@ -30,6 +63,7 @@ export const Login = () => {
           >
             <input
               autoFocus
+              autoComplete="true"
               className="login-form-key"
               name="keyInput"
               placeholder="Phone number, username or email"
@@ -40,6 +74,7 @@ export const Login = () => {
               }}
             />
             <input
+              autoComplete="true"
               className="login-form-password"
               placeholder="Password"
               name="password"
@@ -56,17 +91,10 @@ export const Login = () => {
             <div className="login-form-option">
               <p>OR</p>
             </div>
-            <div className="login-form-google">
-              <button
-                className="login-form-google__button"
-                onClick={() => googleAuth()}
-              >
-                <span className="login-form-google__span">
-                  <FcGoogle className="login-form-google__icon" />
-                </span>
-                <p className="login-form-google__text">Continue with Google</p>
-              </button>
-            </div>
+            <div
+              id="login-form-google"
+              className="login-form-googleclass"
+            ></div>
             <a
               className="login-form-forgotpassword"
               draggable="true"
