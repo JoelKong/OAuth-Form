@@ -1,11 +1,11 @@
 import { React, useState } from "react";
+import { FcGoogle } from "react-icons/fc";
 
 export const Login = () => {
   const [input, setInput] = useState({ keyInput: "", password: "" });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setInput({ keyInput: "", password: "" });
   };
 
   const handleChange = (e) => {
@@ -13,6 +13,9 @@ export const Login = () => {
     const value = e.target.value;
     setInput({ ...input, [name]: [value] });
   };
+
+  const forgotPassword = () => {};
+  const googleAuth = () => {};
 
   return (
     <main className="background">
@@ -30,26 +33,55 @@ export const Login = () => {
               className="login-form-key"
               name="keyInput"
               placeholder="Phone number, username or email"
+              maxLength="75"
               value={input.keyInput}
               onChange={(e) => {
                 handleChange(e);
               }}
-            ></input>
+            />
             <input
               className="login-form-password"
               placeholder="Password"
               name="password"
+              type="password"
+              maxLength="75"
               value={input.password}
               onChange={(e) => {
                 handleChange(e);
               }}
-            ></input>
-            <button className="login-form-button">Log In</button>
+            />
+            <button disabled className="login-form-button">
+              Log In
+            </button>
             <div className="login-form-option">
-              <div className="login-form-line"></div>
               <p>OR</p>
-              <div className="login-form-line"></div>
             </div>
+            <div className="login-form-google">
+              <button
+                className="login-form-google__button"
+                onClick={() => googleAuth()}
+              >
+                <span className="login-form-google__span">
+                  <FcGoogle className="login-form-google__icon" />
+                </span>
+                <p className="login-form-google__text">Continue with Google</p>
+              </button>
+            </div>
+            <a
+              className="login-form-forgotpassword"
+              draggable="true"
+              onClick={() => {
+                forgotPassword();
+              }}
+            >
+              Forgot Password?
+            </a>
+            <p className="login-form-signuptext">
+              Don't have an account?{" "}
+              <a className="login-form-signup" draggable="true">
+                Sign up
+              </a>
+            </p>
           </form>
         </div>
       </section>
