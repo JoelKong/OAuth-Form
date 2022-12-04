@@ -20,10 +20,10 @@
 
 .login-form-header {
   width: 100%;
-  margin-top: 3rem;
+  margin-top: 2rem;
   text-align: center;
   font-weight: 700;
-  font-size: 2.5rem;
+  font-size: 2rem;
 }
 
 .login-form-input {
@@ -41,7 +41,7 @@
   border: 1px solid gray;
   background-color: rgba(255, 255, 255, 0.5);
   width: 70%;
-  height: 2rem;
+  height: 1.8rem;
   padding-left: 0.5rem;
   border-radius: 5px;
 }
@@ -50,10 +50,37 @@
   border: 1px solid gray;
   background-color: rgba(255, 255, 255, 0.5);
   width: 70%;
-  height: 2rem;
+  height: 1.8rem;
   margin-top: 0.4rem;
   padding-left: 0.5rem;
   border-radius: 5px;
+}
+
+.login-form-button {
+  width: 70%;
+  border: 1px solid gray;
+  height: 1.8rem;
+  border-radius: 5px;
+  margin-top: 1rem;
+  color: white;
+  background-color: #0095f6;
+  cursor: pointer;
+}
+
+.login-form-option {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+  color: gray;
+  margin-top: 1.8rem;
+  width: 75%;
+}
+
+.login-form-line {
+  width: 8rem;
+  height: 0.1rem;
+  background: gray;
+  margin-top: 0.6rem;
 }
 
 @media (max-width: 570px) {
