@@ -1,8 +1,7 @@
 import { React, useState } from "react";
 import { useGoogleLogin } from "@react-oauth/google";
 import { FcGoogle } from "react-icons/fc";
-import axios from "axios";
-import jwt_decode from "jwt-decode";
+import Axios from "axios";
 
 export const Login = () => {
   //States
@@ -12,21 +11,29 @@ export const Login = () => {
   //Google OAuth
   const login = useGoogleLogin({
     onSuccess: async (response) => {
-      const res = await axios.get(
+      const res = await Axios.get(
         "https://www.googleapis.com/oauth2/v3/userinfo",
         {
           headers: {
             Authorization: `Bearer ${response.access_token}`,
           },
         }
-      );
-      console.log(res.data);
+      ).then(async (response) => {
+        const userGoogleData = {
+          firstName: response.data.given_name,
+          lastName: response.data.family_name,
+          email: response.data.email,
+          picture: response.data.picture,
+        };
+        const userData = await Axios.post(
+          "http://localhost:3001/checkuserexist",
+          userGoogleData
+        );
+        setUser(userData.data[0] || userData.data);
+        // console.log(userData.data[0]);
+      });
     },
   });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-  };
 
   const handleChange = (e) => {
     const name = e.target.name;
@@ -44,7 +51,7 @@ export const Login = () => {
           <form
             className="login-form-input"
             onSubmit={(e) => {
-              handleSubmit(e);
+              e.preventDefault();
             }}
           >
             <input
