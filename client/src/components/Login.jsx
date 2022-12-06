@@ -1,31 +1,28 @@
 import { React, useState } from "react";
+import { useGoogleLogin } from "@react-oauth/google";
+import { FcGoogle } from "react-icons/fc";
+import axios from "axios";
+import jwt_decode from "jwt-decode";
 
 export const Login = () => {
   //States
   const [input, setInput] = useState({ keyInput: "", password: "" });
+  const [user, setUser] = useState({});
 
   //Google OAuth
-  window.onGoogleLibraryLoad = () => {
-    /* global google */
-    google.accounts.id.initialize({
-      client_id: process.env.CLIENT_ID,
-      // ux_mode: "redirect",
-      callback: handleCallbackResponse,
-    });
-
-    google.accounts.id.renderButton(
-      document.getElementById("login-form-google"),
-      {
-        theme: "outline",
-        width: "300px",
-        text: "continue_with",
-      }
-    );
-  };
-
-  const handleCallbackResponse = (response) => {
-    console.log("Encoded JWT ID token: " + response.credential);
-  };
+  const login = useGoogleLogin({
+    onSuccess: async (response) => {
+      const res = await axios.get(
+        "https://www.googleapis.com/oauth2/v3/userinfo",
+        {
+          headers: {
+            Authorization: `Bearer ${response.access_token}`,
+          },
+        }
+      );
+      console.log(res.data);
+    },
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -80,10 +77,12 @@ export const Login = () => {
             <div className="login-form-option">
               <p>OR</p>
             </div>
-            <div
-              id="login-form-google"
-              className="login-form-googleclass"
-            ></div>
+            <div className="login-form-google">
+              <button onClick={login} className="login-form-google__button">
+                <FcGoogle className="login-form-google__icon" />
+                <p className="login-form-google__text">Continue with Google</p>
+              </button>
+            </div>
             <a
               className="login-form-forgotpassword"
               draggable="true"

@@ -1,3 +1,4 @@
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Routes, Route } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import { Login } from "./components/Login.jsx";
@@ -11,9 +12,11 @@ function App() {
   };
 
   return (
-    <Routes>
-      <Route path="/" element={<Login />} />
-    </Routes>
+    <GoogleOAuthProvider clientId={process.env.CLIENT_ID}>
+      <Routes>
+        <Route path="/" element={<Login />} />
+      </Routes>
+    </GoogleOAuthProvider>
   );
 }
 
