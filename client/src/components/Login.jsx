@@ -1,15 +1,15 @@
-import { React, useState, useEffect } from "react";
+import { React, useState } from "react";
 
 export const Login = () => {
   //States
   const [input, setInput] = useState({ keyInput: "", password: "" });
 
   //Google OAuth
-  useEffect(() => {
+  window.onGoogleLibraryLoad = () => {
     /* global google */
     google.accounts.id.initialize({
-      client_id:
-        "608395486036-7l6g1055nppme7h9gcdno5f18r6lpech.apps.googleusercontent.com",
+      client_id: process.env.CLIENT_ID,
+      // ux_mode: "redirect",
       callback: handleCallbackResponse,
     });
 
@@ -19,23 +19,12 @@ export const Login = () => {
         theme: "outline",
         width: "300px",
         text: "continue_with",
-        onsuccess: onSuccess,
-        onfailure: onFailure,
       }
     );
-  }, []);
+  };
 
   const handleCallbackResponse = (response) => {
     console.log("Encoded JWT ID token: " + response.credential);
-  };
-
-  //Getting google data
-  const onSuccess = (googleUser) => {
-    console.log("Logged in as: " + googleUser.getBasicProfile().getName());
-  };
-
-  const onFailure = (error) => {
-    console.log(error);
   };
 
   const handleSubmit = (e) => {
