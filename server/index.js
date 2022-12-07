@@ -38,12 +38,12 @@ app.post("/checkuserexist", async (req, res) => {
       profilePicture: picture,
     });
 
-    const token = jwt.sign(
+    const accessToken = jwt.sign(
       { email: result.email, id: result._id },
-      config.get("JWT_SECRET"),
+      config.get("ACCESS_TOKEN_SECRET"),
       { expiresIn: "4h" }
     );
 
-    res.status(200).json([result, token]);
+    res.status(200).json([result, accessToken]);
   }
 });
