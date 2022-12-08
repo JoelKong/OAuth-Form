@@ -24,21 +24,26 @@ app.listen(process.env.PORT || 3001, () =>
 );
 
 //Checking whether token is valid
-function authenticateToken(req, res, next) {
+async function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-  if (token == null) return res.sendStatus(401);
+  const email = authHeader && authHeader.split(" ")[1];
+  const findUser = await UserModel.findOne({ email: email });
+  if (findUser.accessTokens[0] == null) return res.sendStatus(401);
 
-  jwt.verify(token, config.get("ACCESS_TOKEN_SECRET"), (err, user) => {
-    console.log(err);
-    if (err) return res.sendStatus(403);
-    req.user = user;
-    next();
-  });
+  jwt.verify(
+    findUser.accessTokens[0],
+    config.get("ACCESS_TOKEN_SECRET"),
+    (err, user) => {
+      console.log(err);
+      if (err) return res.sendStatus(403);
+      req.user = user;
+      next();
+    }
+  );
 }
 
 //Generate Access Token
-function generateAccessToken(user) {
+async function generateAccessToken(user) {
   return jwt.sign(user, config.get("ACCESS_TOKEN_SECRET"), {
     expiresIn: "10m",
   });
@@ -61,16 +66,11 @@ app.post("/handletokens", async (req, res) => {
       config.get("REFRESH_TOKEN_SECRET")
     );
 
+    isUserExist.accessTokens.push(accessToken);
     isUserExist.refreshTokens.push(refreshToken);
     await isUserExist.save();
 
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24, // 1 days
-    });
-
-    res.status(200).json({ accessToken: accessToken });
+    res.status(200).json({ email: email });
   } else {
     const result = await UserModel.create({
       firstName: firstName,
@@ -89,16 +89,17 @@ app.post("/handletokens", async (req, res) => {
       config.get("REFRESH_TOKEN_SECRET")
     );
 
+    result.accessTokens.push(accessToken);
     result.refreshTokens.push(refreshToken);
     await result.save();
 
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24, // 1 days
-    });
+    // res.cookie("refreshToken", refreshToken, {
+    //   httpOnly: true,
+    //   sameSite: "lax",
+    //   maxAge: 60 * 60 * 24, // 1 days
+    // });
 
-    res.status(200).json({ accessToken: accessToken });
+    res.status(200).json({ email: result.email });
   }
 });
 
@@ -117,6 +118,8 @@ app.post("/token", (req, res) => {
       email: user.email,
       id: user._id,
     });
+    findUser.accessToken.pop();
+    findUser.accessTokens.push(accessToken);
     res.json({ accessToken: accessToken });
   });
 });
@@ -129,9 +132,14 @@ app.delete("/logout", async (req, res) => {
     (token) => token !== req.body.token
   );
   await findUser.save();
+  localStorage.clear();
   res.sendStatus(204);
 });
 
-app.get("/home", authenticateToken, (req, res) => {
-  console.log(req.user.email);
+//Get Home data
+app.get("/home", authenticateToken, async (req, res) => {
+  const getUser = await UserModel.findOne({ email: req.user.email });
+  const { firstName, lastName, email, profilePicture } = getUser;
+  const userData = { firstName, lastName, email, profilePicture };
+  res.json(userData);
 });

@@ -1,4 +1,5 @@
 import { React, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 import { FcGoogle } from "react-icons/fc";
 import Axios from "axios";
@@ -6,7 +7,7 @@ import Axios from "axios";
 export const Login = () => {
   //States
   const [input, setInput] = useState({ keyInput: "", password: "" });
-  const [user, setUser] = useState({});
+  const navigate = useNavigate();
 
   //Google OAuth
   const login = useGoogleLogin({
@@ -30,18 +31,10 @@ export const Login = () => {
           userGoogleData
         );
 
+        localStorage.setItem("email", userData.data.email);
+
         //Navigate to Home
-        Axios.get("http://localhost:3000/home", {
-          headers: {
-            Authorization: `Bearer ${userData.data.accessToken}`,
-          },
-        })
-          .then((response) => {
-            console.log(response.data);
-          })
-          .catch((error) => {
-            console.error(error);
-          });
+        navigate("/home");
       });
     },
   });

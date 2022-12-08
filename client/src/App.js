@@ -1,7 +1,8 @@
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Routes, Route } from "react-router-dom";
 import { Navigate } from "react-router-dom";
-import { Login } from "./components/Login.jsx";
+import { Login } from "./components/Login/Login.jsx";
+import { Home } from "./components/Home/Home.jsx";
 
 function App() {
   const ProtectedRoute = ({ children, user }) => {
@@ -15,6 +16,8 @@ function App() {
     <GoogleOAuthProvider clientId={process.env.CLIENT_ID}>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="home" element={<Home />} />
+        <Route path="*" element={<Home />} />
       </Routes>
     </GoogleOAuthProvider>
   );

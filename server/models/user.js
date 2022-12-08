@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String },
   profilePicture: { type: String, required: true },
   id: { type: String },
+  accessTokens: { type: [String] },
   refreshTokens: { type: [String] },
 });
 
