@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const cors = require("cors");
-const bcrypt = require("bcryptjs");
+// const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const config = require("config");
 require("dotenv").config();
@@ -22,6 +22,27 @@ app.use(cors());
 app.listen(process.env.PORT || 3001, () =>
   console.log("Server running on port 3001")
 );
+
+//Checking whether token is valid
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (token == null) return res.sendStatus(401);
+
+  jwt.verify(token, config.get("REFRESH_TOKEN_SECRET"), (err, user) => {
+    console.log(err);
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+}
+
+//Generate Access Token
+function generateAccessToken(user) {
+  return jwt.sign(user, config.get("ACCESS_TOKEN_SECRET"), {
+    expiresIn: "10m",
+  });
+}
 
 //Check User Exist and Create User (Tokens)
 app.post("/checkuserexist", async (req, res) => {
@@ -73,6 +94,7 @@ app.post("/checkuserexist", async (req, res) => {
   }
 });
 
+//Create Refresh Tokens
 app.post("/token", (req, res) => {
   const refreshToken = req.body.token;
   if (refreshToken == null) return res.sendStatus(401);
@@ -83,17 +105,27 @@ app.post("/token", (req, res) => {
 
   jwt.verify(refreshToken, config.get("REFRESH_TOKEN_SECRET"), (err, user) => {
     if (err) return res.sendStatus(403);
-    const accessToken = jwt.sign(
-      { email: user.email, id: user._id },
-      config.get("ACCESS_TOKEN_SECRET"),
-      { expiresIn: "10m" }
-    );
-    // generateAccessToken({ name: user.name });
+    const accessToken = generateAccessToken({
+      email: user.email,
+      id: user._id,
+    });
     res.json({ accessToken: accessToken });
   });
 });
 
-app.delete("/logout", (req, res) => {
+//Delete all Refresh Tokens Upon Logout
+app.delete("/logout", async (req, res) => {
   //delete refresh tokens using filter and db
+  const findUser = await UserModel.findOne({ _id: req.body._id });
+  findUser.refreshTokens = findUser.refreshTokens.filter(
+    (token) => token !== req.body.token
+  );
+  await findUser.save();
   res.sendStatus(204);
 });
+
+app.get("/home", authenticateToken, (req, res) => {
+  console.log(req.user.email);
+});
+
+//authorization bearer whenever getting data

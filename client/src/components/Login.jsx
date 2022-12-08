@@ -29,7 +29,9 @@ export const Login = () => {
           "http://localhost:3001/checkuserexist",
           userGoogleData
         );
-        setUser(userData.data[0] || userData.data);
+
+        console.log(userData.data);
+        // setUser(userData.data[0] || userData.data);
         // console.log(userData.data[0]);
       });
     },
