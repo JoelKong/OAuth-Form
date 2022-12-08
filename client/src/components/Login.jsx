@@ -26,13 +26,22 @@ export const Login = () => {
           picture: response.data.picture,
         };
         const userData = await Axios.post(
-          "http://localhost:3001/checkuserexist",
+          "http://localhost:3001/handletokens",
           userGoogleData
         );
 
-        console.log(userData.data);
-        // setUser(userData.data[0] || userData.data);
-        // console.log(userData.data[0]);
+        //Navigate to Home
+        Axios.get("http://localhost:3000/home", {
+          headers: {
+            Authorization: `Bearer ${userData.data.accessToken}`,
+          },
+        })
+          .then((response) => {
+            console.log(response.data);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
       });
     },
   });

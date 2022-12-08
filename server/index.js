@@ -29,7 +29,7 @@ function authenticateToken(req, res, next) {
   const token = authHeader && authHeader.split(" ")[1];
   if (token == null) return res.sendStatus(401);
 
-  jwt.verify(token, config.get("REFRESH_TOKEN_SECRET"), (err, user) => {
+  jwt.verify(token, config.get("ACCESS_TOKEN_SECRET"), (err, user) => {
     console.log(err);
     if (err) return res.sendStatus(403);
     req.user = user;
@@ -44,8 +44,8 @@ function generateAccessToken(user) {
   });
 }
 
-//Check User Exist and Create User (Tokens)
-app.post("/checkuserexist", async (req, res) => {
+//Check User Exist, Create User and Handling of Tokens
+app.post("/handletokens", async (req, res) => {
   const { firstName, lastName, email, picture } = req.body;
   const isUserExist = await UserModel.findOne({ email: email });
 
@@ -64,9 +64,13 @@ app.post("/checkuserexist", async (req, res) => {
     isUserExist.refreshTokens.push(refreshToken);
     await isUserExist.save();
 
-    res
-      .status(200)
-      .json({ accessToken: accessToken, refreshToken: refreshToken });
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24, // 1 days
+    });
+
+    res.status(200).json({ accessToken: accessToken });
   } else {
     const result = await UserModel.create({
       firstName: firstName,
@@ -88,9 +92,13 @@ app.post("/checkuserexist", async (req, res) => {
     result.refreshTokens.push(refreshToken);
     await result.save();
 
-    res
-      .status(200)
-      .json({ accessToken: accessToken, refreshToken: refreshToken });
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24, // 1 days
+    });
+
+    res.status(200).json({ accessToken: accessToken });
   }
 });
 
@@ -127,5 +135,3 @@ app.delete("/logout", async (req, res) => {
 app.get("/home", authenticateToken, (req, res) => {
   console.log(req.user.email);
 });
-
-//authorization bearer whenever getting data
