@@ -1,4 +1,4 @@
-import { React, useState } from "react";
+import { React, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 import { FcGoogle } from "react-icons/fc";
@@ -8,6 +8,14 @@ export const Login = () => {
   //States
   const [input, setInput] = useState({ keyInput: "", password: "" });
   const navigate = useNavigate();
+
+  //do backend redirect instead tmr
+  // useEffect(() => {
+  //   const user = localStorage.getItem("email");
+  //   if (user) {
+  //     navigate("/home");
+  //   }
+  // }, []);
 
   //Google OAuth
   const login = useGoogleLogin({
