@@ -1,4 +1,5 @@
 //Import dependencies
+const Axios = require("axios");
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -28,6 +29,14 @@ async function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   const email = authHeader && authHeader.split(" ")[1];
   const findUser = await UserModel.findOne({ email: email });
+
+  try {
+    jwt.verify(findUser.accessTokens[0], config.get("ACCESS_TOKEN_SECRET"));
+  } catch (TokenExpiredError) {
+    await Axios.post("http://localhost:3001/token", { email: email });
+    console.log("finished loading");
+  }
+
   if (findUser.accessTokens[0] == null) return res.sendStatus(401);
 
   jwt.verify(
@@ -104,24 +113,30 @@ app.post("/handletokens", async (req, res) => {
 });
 
 //Create Refresh Tokens
-app.post("/token", (req, res) => {
-  const refreshToken = req.body.token;
+app.post("/token", async (req, res) => {
+  const findUser = await UserModel.findOne({ email: req.body.email });
+
+  const refreshToken =
+    findUser.refreshTokens[findUser.refreshTokens.length - 1];
   if (refreshToken == null) return res.sendStatus(401);
 
-  const findUser = UserModel.findOne({ _id: req.body._id });
   if (!findUser.refreshTokens.includes(refreshToken))
     return res.sendStatus(403);
 
-  jwt.verify(refreshToken, config.get("REFRESH_TOKEN_SECRET"), (err, user) => {
-    if (err) return res.sendStatus(403);
-    const accessToken = generateAccessToken({
-      email: user.email,
-      id: user._id,
-    });
-    findUser.accessToken.pop();
-    findUser.accessTokens.push(accessToken);
-    res.json({ accessToken: accessToken });
-  });
+  jwt.verify(
+    refreshToken,
+    config.get("REFRESH_TOKEN_SECRET"),
+    async (err, user) => {
+      if (err) return res.sendStatus(403);
+      const accessToken = await generateAccessToken({
+        email: user.email,
+        id: user._id,
+      });
+      findUser.accessTokens.splice(0, findUser.accessTokens.length);
+      findUser.accessTokens.push(accessToken);
+      await findUser.save();
+    }
+  );
 });
 
 //Delete all Refresh Tokens Upon Logout
