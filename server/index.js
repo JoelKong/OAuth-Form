@@ -30,20 +30,22 @@ async function authenticateToken(req, res, next) {
   const email = authHeader && authHeader.split(" ")[1];
   const findUser = await UserModel.findOne({ email: email });
 
-  try {
-    jwt.verify(findUser.accessTokens[0], config.get("ACCESS_TOKEN_SECRET"));
-  } catch (TokenExpiredError) {
-    await Axios.post("http://localhost:3001/token", { email: email });
-    console.log("finished loading");
-  }
+  //  try {
+  //    jwt.verify(findUser.accessTokens[0], config.get("ACCESS_TOKEN_SECRET"));
+  //  } catch (TokenExpiredError) {
+  //    res.sendStatus(403)
+  //   tokenExpired = true;
+  // }
+
+  //   await Axios.post("http://localhost:3001/token", {
+  //     email: email,
+  //   });
 
   if (findUser.accessTokens[0] == null) return res.sendStatus(401);
-
   jwt.verify(
     findUser.accessTokens[0],
     config.get("ACCESS_TOKEN_SECRET"),
     (err, user) => {
-      console.log(err);
       if (err) return res.sendStatus(403);
       req.user = user;
       next();
@@ -54,7 +56,7 @@ async function authenticateToken(req, res, next) {
 //Generate Access Token
 async function generateAccessToken(user) {
   return jwt.sign(user, config.get("ACCESS_TOKEN_SECRET"), {
-    expiresIn: "10m",
+    expiresIn: "1m",
   });
 }
 
@@ -67,7 +69,7 @@ app.post("/handletokens", async (req, res) => {
     const accessToken = jwt.sign(
       { email: isUserExist.email, id: isUserExist._id },
       config.get("ACCESS_TOKEN_SECRET"),
-      { expiresIn: "10m" }
+      { expiresIn: "1m" }
     );
 
     const refreshToken = jwt.sign(
@@ -91,7 +93,7 @@ app.post("/handletokens", async (req, res) => {
     const accessToken = jwt.sign(
       { email: result.email, id: result._id },
       config.get("ACCESS_TOKEN_SECRET"),
-      { expiresIn: "10m" }
+      { expiresIn: "1m" }
     );
     const refreshToken = jwt.sign(
       { email: result.email, id: result._id },
@@ -118,6 +120,7 @@ app.post("/token", async (req, res) => {
 
   const refreshToken =
     findUser.refreshTokens[findUser.refreshTokens.length - 1];
+
   if (refreshToken == null) return res.sendStatus(401);
 
   if (!findUser.refreshTokens.includes(refreshToken))
@@ -132,7 +135,6 @@ app.post("/token", async (req, res) => {
         email: user.email,
         id: user._id,
       });
-      // findUser.accessTokens.splice(0, findUser.accessTokens.length);
       findUser.accessTokens = [];
       findUser.accessTokens.push(accessToken);
       await findUser.save();

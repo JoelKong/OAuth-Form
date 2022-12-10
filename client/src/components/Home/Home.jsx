@@ -7,12 +7,25 @@ export const Home = () => {
 
   async function getHomeData() {
     const getIdentifier = localStorage.getItem("email");
-    const getData = await Axios.get("http://localhost:3001/home", {
-      headers: {
-        Authorization: `Bearer ${getIdentifier}`,
-      },
-    });
-    setUser(getData.data);
+    while (true) {
+      try {
+        const getData = await Axios.get("http://localhost:3001/home", {
+          headers: {
+            Authorization: `Bearer ${getIdentifier}`,
+          },
+        });
+        setUser(getData.data);
+        break;
+      } catch (error) {
+        console.log("token expired");
+        if (error.response.status === 403) {
+          await Axios.post("http://localhost:3001/token", {
+            email: getIdentifier,
+          });
+          continue;
+        }
+      }
+    }
   }
 
   useEffect(() => {
