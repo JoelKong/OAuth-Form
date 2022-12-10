@@ -28,5 +28,7 @@ export const Home = () => {
         <p>{user.profilePicture}</p>
       </div>
     );
+  } else {
+    return <div>Loading...</div>;
   }
 };

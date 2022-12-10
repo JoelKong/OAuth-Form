@@ -132,7 +132,8 @@ app.post("/token", async (req, res) => {
         email: user.email,
         id: user._id,
       });
-      findUser.accessTokens.splice(0, findUser.accessTokens.length);
+      // findUser.accessTokens.splice(0, findUser.accessTokens.length);
+      findUser.accessTokens = [];
       findUser.accessTokens.push(accessToken);
       await findUser.save();
     }
@@ -142,10 +143,13 @@ app.post("/token", async (req, res) => {
 //Delete all Refresh Tokens Upon Logout
 app.delete("/logout", async (req, res) => {
   //delete refresh tokens using filter and db
-  const findUser = await UserModel.findOne({ _id: req.body._id });
-  findUser.refreshTokens = findUser.refreshTokens.filter(
-    (token) => token !== req.body.token
-  );
+  const findUser = await UserModel.findOne({ email: req.body.email });
+  findUser.accessTokens = [];
+  findUser.refreshTokens = [];
+  // findUser.refreshTokens = findUser.refreshTokens.filter(
+  //   (token) =>
+  //     token !== findUser.refreshTokens[findUser.refreshTokens.length - 1]
+  // );
   await findUser.save();
   localStorage.clear();
   res.sendStatus(204);
