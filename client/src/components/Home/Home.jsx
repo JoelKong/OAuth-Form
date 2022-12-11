@@ -7,6 +7,7 @@ export const Home = () => {
 
   async function getHomeData() {
     const getIdentifier = localStorage.getItem("email");
+
     while (true) {
       try {
         const getData = await Axios.get("http://localhost:3001/home", {
@@ -29,6 +30,12 @@ export const Home = () => {
     }
   }
 
+  async function handleLogOut() {
+    await Axios.post("http://localhost:3001/logout", { email: user.email });
+    localStorage.clear();
+    window.location.href = "http://localhost:3000/";
+  }
+
   useEffect(() => {
     getHomeData();
   }, []);
@@ -40,6 +47,7 @@ export const Home = () => {
         <p>{user.lastName}</p>
         <p>{user.email}</p>
         <p>{user.profilePicture}</p>
+        <button onClick={() => handleLogOut()}>Logout</button>
       </div>
     );
   } else {

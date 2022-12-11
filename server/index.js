@@ -137,16 +137,12 @@ app.post("/token", async (req, res) => {
 });
 
 //Delete all Refresh Tokens Upon Logout
-app.delete("/logout", async (req, res) => {
+app.post("/logout", async (req, res) => {
   await UserModel.updateOne(
     { email: req.body.email },
     { accessTokens: "", refreshTokens: [] }
   );
-  // findUser.refreshTokens = findUser.refreshTokens.filter(
-  //   (token) =>
-  //     token !== findUser.refreshTokens[findUser.refreshTokens.length - 1]
-  // );
-  localStorage.clear();
+
   res.sendStatus(204);
 });
 

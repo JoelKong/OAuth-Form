@@ -8,14 +8,7 @@ export const Login = () => {
   //States
   const [input, setInput] = useState({ keyInput: "", password: "" });
   const navigate = useNavigate();
-
-  //do backend redirect instead tmr
-  // useEffect(() => {
-  //   const user = localStorage.getItem("email");
-  //   if (user) {
-  //     navigate("/home");
-  //   }
-  // }, []);
+  const user = localStorage.getItem("email");
 
   //Google OAuth
   const login = useGoogleLogin({
@@ -37,12 +30,11 @@ export const Login = () => {
         const userData = await Axios.post(
           "http://localhost:3001/handletokens",
           userGoogleData
-        );
+        ).then((res) => {
+          localStorage.setItem("email", res.data.email);
+        });
 
-        localStorage.setItem("email", userData.data.email);
-
-        //Navigate to Home
-        navigate("/home");
+        window.location.href = "http://localhost:3000/home";
       });
     },
   });
@@ -55,71 +47,81 @@ export const Login = () => {
 
   const forgotPassword = () => {};
 
-  return (
-    <main className="background">
-      <section className="center">
-        <div className="login-form">
-          <div className="login-form-header">Log In</div>
-          <form
-            className="login-form-input"
-            onSubmit={(e) => {
-              e.preventDefault();
-            }}
-          >
-            <input
-              autoFocus
-              autoComplete="true"
-              className="login-form-key"
-              name="keyInput"
-              placeholder="Phone number, username or email"
-              maxLength="75"
-              value={input.keyInput}
-              onChange={(e) => {
-                handleChange(e);
-              }}
-            />
-            <input
-              autoComplete="true"
-              className="login-form-password"
-              placeholder="Password"
-              name="password"
-              type="password"
-              maxLength="75"
-              value={input.password}
-              onChange={(e) => {
-                handleChange(e);
-              }}
-            />
-            <button disabled className="login-form-button">
-              Log In
-            </button>
-            <div className="login-form-option">
-              <p>OR</p>
-            </div>
-            <div className="login-form-google">
-              <button onClick={login} className="login-form-google__button">
-                <FcGoogle className="login-form-google__icon" />
-                <p className="login-form-google__text">Continue with Google</p>
-              </button>
-            </div>
-            <a
-              className="login-form-forgotpassword"
-              draggable="true"
-              onClick={() => {
-                forgotPassword();
+  useEffect(() => {
+    if (user) {
+      navigate("/home");
+    }
+  }, []);
+
+  if (!user) {
+    return (
+      <main className="background">
+        <section className="center">
+          <div className="login-form">
+            <div className="login-form-header">Log In</div>
+            <form
+              className="login-form-input"
+              onSubmit={(e) => {
+                e.preventDefault();
               }}
             >
-              Forgot Password?
-            </a>
-            <p className="login-form-signuptext">
-              Don't have an account?{" "}
-              <a className="login-form-signup" draggable="true">
-                Sign up
+              <input
+                autoFocus
+                autoComplete="true"
+                className="login-form-key"
+                name="keyInput"
+                placeholder="Phone number, username or email"
+                maxLength="75"
+                value={input.keyInput}
+                onChange={(e) => {
+                  handleChange(e);
+                }}
+              />
+              <input
+                autoComplete="true"
+                className="login-form-password"
+                placeholder="Password"
+                name="password"
+                type="password"
+                maxLength="75"
+                value={input.password}
+                onChange={(e) => {
+                  handleChange(e);
+                }}
+              />
+              <button disabled className="login-form-button">
+                Log In
+              </button>
+              <div className="login-form-option">
+                <p>OR</p>
+              </div>
+              <div className="login-form-google">
+                <button onClick={login} className="login-form-google__button">
+                  <FcGoogle className="login-form-google__icon" />
+                  <p className="login-form-google__text">
+                    Continue with Google
+                  </p>
+                </button>
+              </div>
+              <a
+                className="login-form-forgotpassword"
+                draggable="true"
+                onClick={() => {
+                  forgotPassword();
+                }}
+              >
+                Forgot Password?
               </a>
-            </p>
-          </form>
-        </div>
-      </section>
-    </main>
-  );
+              <p className="login-form-signuptext">
+                Don't have an account?{" "}
+                <a className="login-form-signup" draggable="true">
+                  Sign up
+                </a>
+              </p>
+            </form>
+          </div>
+        </section>
+      </main>
+    );
+  }
 };
