@@ -2,11 +2,13 @@ import { React, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 import { FcGoogle } from "react-icons/fc";
+import { Signup } from "./Signup";
 import Axios from "axios";
 
 export const Login = () => {
   //States
   const [input, setInput] = useState({ keyInput: "", password: "" });
+  const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
   const user = localStorage.getItem("email");
 
@@ -53,7 +55,7 @@ export const Login = () => {
     }
   }, []);
 
-  if (!user) {
+  if (!user && !isSignUp) {
     return (
       <main className="background">
         <section className="center">
@@ -117,7 +119,7 @@ export const Login = () => {
                 <a
                   className="login-form-signup"
                   draggable="true"
-                  onClick={() => navigate("/signup")}
+                  onClick={() => setIsSignUp(true)}
                 >
                   Sign up
                 </a>
@@ -127,5 +129,8 @@ export const Login = () => {
         </section>
       </main>
     );
+  }
+  if (isSignUp) {
+    return <Signup />;
   }
 };

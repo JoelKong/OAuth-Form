@@ -9,7 +9,7 @@
 
 body {
   font-family: "Roboto", sans-serif;
-  animation: refresh 1000ms 0s 1 forwards;
+  animation: refresh 800ms 0s 1 forwards;
 }
 
 button:disabled {
