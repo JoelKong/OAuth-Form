@@ -62,20 +62,27 @@ export const Signup = () => {
       /[a-zA-Z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,8}(.[a-z{2,8}])?/g
     );
     if (regEx.test(email)) {
-      setPassConditions({ ...passConditions, keyInput: true });
+      setPassConditions((prevState) => {
+        return { ...prevState, ["keyInput"]: "true" };
+      });
     } else if (!regEx.test(email) && email !== "") {
-      setPassConditions({ ...passConditions, keyInput: false });
+      setPassConditions((prevState) => {
+        return { ...prevState, ["keyInput"]: "false" };
+      });
     }
   };
-
   //Username Validation
   const userNameValidation = () => {
     const userName = input.userName[0];
     const regEx = new RegExp(/^(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/);
     if (regEx.test(userName)) {
-      setPassConditions({ ...passConditions, userName: true });
+      setPassConditions((prevState) => {
+        return { ...prevState, ["userName"]: "true" };
+      });
     } else if (!regEx.test(userName) && userName !== "") {
-      setPassConditions({ ...passConditions, userName: false });
+      setPassConditions((prevState) => {
+        return { ...prevState, ["userName"]: "false" };
+      });
     }
   };
 
@@ -86,9 +93,13 @@ export const Signup = () => {
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/
     );
     if (regEx.test(password)) {
-      setPassConditions({ ...passConditions, password: true });
+      setPassConditions((prevState) => {
+        return { ...prevState, ["password"]: "true" };
+      });
     } else if (!regEx.test(password) && password !== "") {
-      setPassConditions({ ...passConditions, password: false });
+      setPassConditions((prevState) => {
+        return { ...prevState, ["password"]: "false" };
+      });
     }
   };
 
