@@ -72,7 +72,7 @@ export const Login = () => {
                 autoComplete="true"
                 className="login-form-key"
                 name="keyInput"
-                placeholder="Phone number, username or email"
+                placeholder="Username or Email"
                 maxLength="75"
                 value={input.keyInput}
                 onChange={(e) => {

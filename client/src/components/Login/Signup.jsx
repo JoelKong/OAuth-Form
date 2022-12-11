@@ -1,9 +1,25 @@
-import { React, useState } from "react";
+import { React, useState, useEffect } from "react";
 import { useGoogleLogin } from "@react-oauth/google";
 import { FcGoogle } from "react-icons/fc";
 import Axios from "axios";
+import { Login } from "./Login";
 
 export const Signup = () => {
+  //States
+  const [input, setInput] = useState({
+    keyInput: "",
+    fullName: "",
+    userName: "",
+    password: "",
+  });
+  const [isLogIn, setIsLogIn] = useState(false);
+  const [disable, setDisable] = useState(true);
+  const [passConditions, setPassConditions] = useState({
+    keyInput: false,
+    userName: false,
+    password: false,
+  });
+
   //Google OAuth
   const login = useGoogleLogin({
     onSuccess: async (response) => {
@@ -33,6 +49,79 @@ export const Signup = () => {
     },
   });
 
+  const handleChange = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    setInput({ ...input, [name]: [value] });
+  };
+
+  //Email Validation
+  const emailValidation = () => {
+    const email = input.keyInput[0];
+    const regEx = new RegExp(
+      /[a-zA-Z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,8}(.[a-z{2,8}])?/g
+    );
+    if (regEx.test(email)) {
+      setPassConditions({ ...passConditions, keyInput: true });
+    } else if (!regEx.test(email) && email !== "") {
+      setPassConditions({ ...passConditions, keyInput: false });
+    }
+  };
+
+  //Username Validation
+  const userNameValidation = () => {
+    const userName = input.userName[0];
+    const regEx = new RegExp(/^(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/);
+    if (regEx.test(userName)) {
+      setPassConditions({ ...passConditions, userName: true });
+    } else if (!regEx.test(userName) && userName !== "") {
+      setPassConditions({ ...passConditions, userName: false });
+    }
+  };
+
+  //Password Validation
+  const passwordValidation = () => {
+    const password = input.password[0];
+    const regEx = new RegExp(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/
+    );
+    if (regEx.test(password)) {
+      setPassConditions({ ...passConditions, password: true });
+    } else if (!regEx.test(password) && password !== "") {
+      setPassConditions({ ...passConditions, password: false });
+    }
+  };
+
+  //Validate all
+  const validateAll = () => {
+    if (input.fullName === "") {
+      return;
+    }
+    emailValidation();
+    userNameValidation();
+    passwordValidation();
+
+    console.log(passConditions);
+  };
+
+  useEffect(() => {
+    //Check whether input is present
+    if (
+      input.keyInput[0] &&
+      input.fullName[0] &&
+      input.userName[0] &&
+      input.password[0]
+    ) {
+      setDisable(false);
+    } else {
+      setDisable(true);
+    }
+  }, [input]);
+
+  if (isLogIn) {
+    return <Login />;
+  }
+
   return (
     <main className="background">
       <section className="center">
@@ -49,47 +138,52 @@ export const Signup = () => {
               autoComplete="true"
               className="login-form-key"
               name="keyInput"
-              placeholder="Mobile Number or Email"
-              maxLength="75"
-              // value={input.keyInput}
+              placeholder="Email"
+              maxLength="40"
+              value={input.keyInput}
               onChange={(e) => {
-                // handleChange(e);
+                handleChange(e);
               }}
             />
             <input
               autoComplete="true"
               className="login-form-password"
-              name="keyInput"
+              name="fullName"
               placeholder="Full Name"
-              maxLength="75"
-              // value={input.keyInput}
+              maxLength="30"
+              value={input.fullName}
               onChange={(e) => {
-                // handleChange(e);
+                handleChange(e);
               }}
             />
             <input
               autoComplete="true"
               className="login-form-password"
-              name="keyInput"
+              name="userName"
               placeholder="Username"
-              maxLength="75"
-              // value={input.keyInput}
+              maxLength="20"
+              value={input.userName}
               onChange={(e) => {
-                // handleChange(e);
+                handleChange(e);
               }}
             />
             <input
               autoComplete="true"
               className="login-form-password"
-              name="keyInput"
+              type="password"
+              name="password"
               placeholder="Password"
-              maxLength="75"
-              // value={input.keyInput}
+              maxLength="20"
+              value={input.password}
               onChange={(e) => {
-                // handleChange(e);
+                handleChange(e);
               }}
             />
-            <button disabled className="login-form-button">
+            <button
+              disabled={disable}
+              className="login-form-button"
+              onClick={() => validateAll()}
+            >
               Sign Up
             </button>
             <div className="login-form-option">
@@ -106,7 +200,7 @@ export const Signup = () => {
               <a
                 className="login-form-signup"
                 draggable="true"
-                onClick={() => console.log("sad")}
+                onClick={() => setIsLogIn(true)}
               >
                 Log In
               </a>
