@@ -114,7 +114,11 @@ export const Login = () => {
               </a>
               <p className="login-form-signuptext">
                 Don't have an account?{" "}
-                <a className="login-form-signup" draggable="true">
+                <a
+                  className="login-form-signup"
+                  draggable="true"
+                  onClick={() => navigate("/signup")}
+                >
                   Sign up
                 </a>
               </p>
