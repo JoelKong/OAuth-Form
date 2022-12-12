@@ -14,6 +14,7 @@ export const Signup = () => {
   });
   const [isLogIn, setIsLogIn] = useState(false);
   const [disable, setDisable] = useState(true);
+  const [disableInput, setDisableInput] = useState(false);
   const [passConditions, setPassConditions] = useState({
     keyInput: false,
     userName: false,
@@ -111,15 +112,6 @@ export const Signup = () => {
     emailValidation();
     userNameValidation();
     passwordValidation();
-
-    while (
-      passConditions.keyInput &&
-      passConditions.userName &&
-      passConditions.password
-    ) {
-      console.log("please");
-      break;
-    }
   };
 
   useEffect(() => {
@@ -137,11 +129,11 @@ export const Signup = () => {
 
   useEffect(() => {
     if (
-      passConditions.keyInput &&
-      passConditions.userName &&
-      passConditions.password
+      passConditions.keyInput === "true" &&
+      passConditions.userName === "true" &&
+      passConditions.password === "true"
     ) {
-      console.log("d");
+      setDisableInput(true);
     }
   }, [passConditions]);
 
@@ -167,6 +159,7 @@ export const Signup = () => {
               name="keyInput"
               placeholder="Email"
               maxLength="40"
+              disabled={disableInput}
               value={input.keyInput}
               onChange={(e) => {
                 handleChange(e);
@@ -178,6 +171,7 @@ export const Signup = () => {
               name="fullName"
               placeholder="Full Name"
               maxLength="30"
+              disabled={disableInput}
               value={input.fullName}
               onChange={(e) => {
                 handleChange(e);
@@ -189,6 +183,7 @@ export const Signup = () => {
               name="userName"
               placeholder="Username"
               maxLength="20"
+              disabled={disableInput}
               value={input.userName}
               onChange={(e) => {
                 handleChange(e);
@@ -201,6 +196,7 @@ export const Signup = () => {
               name="password"
               placeholder="Password"
               maxLength="20"
+              disabled={disableInput}
               value={input.password}
               onChange={(e) => {
                 handleChange(e);
@@ -211,13 +207,21 @@ export const Signup = () => {
               className="login-form-button"
               onClick={() => validateAll()}
             >
-              Sign Up
+              {disableInput ? (
+                <div className="login-form-button-loader"></div>
+              ) : (
+                "Sign Up"
+              )}
             </button>
             <div className="login-form-option">
               <p>OR</p>
             </div>
             <div className="login-form-google">
-              <button onClick={login} className="login-form-google__button">
+              <button
+                onClick={login}
+                className="login-form-google__button"
+                disabled={disableInput}
+              >
                 <FcGoogle className="login-form-google__icon" />
                 <p className="login-form-google__text">Continue with Google</p>
               </button>
@@ -225,7 +229,11 @@ export const Signup = () => {
             <p className="login-form-signuptext">
               Have an account?{" "}
               <a
-                className="login-form-signup"
+                className={
+                  disableInput
+                    ? "login-form-signup login-form-signup-disable"
+                    : "login-form-signup"
+                }
                 draggable="true"
                 onClick={() => setIsLogIn(true)}
               >
