@@ -45,24 +45,26 @@ async function authenticateToken(req, res, next) {
 //Generate Access Token
 async function generateAccessToken(user) {
   return jwt.sign(user, config.get("ACCESS_TOKEN_SECRET"), {
-    expiresIn: "1m",
+    expiresIn: "10m",
   });
 }
 
 //Log In
 app.post("/login", async (req, res) => {
   const { keyInput, password } = req.body;
-  console.log(keyInput[0]);
 
   const isUserExist = await UserModel.findOne({
-    $and: [{ email: keyInput }, { password: password }],
+    $or: [
+      { email: keyInput[0], password: password[0] },
+      { userName: keyInput[0], password: password[0] },
+    ],
   });
 
   if (isUserExist) {
     const accessToken = jwt.sign(
       { email: isUserExist.email, id: isUserExist._id },
       config.get("ACCESS_TOKEN_SECRET"),
-      { expiresIn: "1m" }
+      { expiresIn: "10m" }
     );
 
     const refreshToken = jwt.sign(
@@ -79,6 +81,18 @@ app.post("/login", async (req, res) => {
   } else {
     res.json({ type: true, msg: "Invalid User" });
   }
+});
+
+//Check Unique User
+app.post("/uniqueuser", async (req, res) => {
+  const { userName } = req.body;
+  const isUserExist = await UserModel.findOne({ userName: userName });
+
+  if (isUserExist) {
+    res.json({ type: true, msg: "Username is Taken" });
+    return;
+  }
+  res.end();
 });
 
 //Check User Exist, Create User and Handling of Tokens
@@ -121,7 +135,7 @@ app.post("/handletokens", async (req, res) => {
     const accessToken = jwt.sign(
       { email: isUserExist.email, id: isUserExist._id },
       config.get("ACCESS_TOKEN_SECRET"),
-      { expiresIn: "1m" }
+      { expiresIn: "10m" }
     );
 
     const refreshToken = jwt.sign(
@@ -149,7 +163,7 @@ app.post("/handletokens", async (req, res) => {
     const accessToken = jwt.sign(
       { email: result.email, id: result._id },
       config.get("ACCESS_TOKEN_SECRET"),
-      { expiresIn: "1m" }
+      { expiresIn: "10m" }
     );
     const refreshToken = jwt.sign(
       { email: result.email, id: result._id },

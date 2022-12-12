@@ -38,9 +38,8 @@ export const Login = () => {
           userGoogleData
         ).then((res) => {
           localStorage.setItem("email", res.data.email);
+          window.location.href = "http://localhost:3000/home";
         });
-
-        window.location.href = "http://localhost:3000/home";
       });
     },
   });

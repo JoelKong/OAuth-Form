@@ -121,19 +121,35 @@ export const Signup = () => {
 
   //Pass Data to Server
   const signUp = async () => {
-    const sendData = await Axios.post(
-      "http://localhost:3001/handletokens",
+    let passCheck = false;
+    const checkUniqueUser = await Axios.post(
+      "http://localhost:3001/uniqueuser",
       input
     ).then((res) => {
-      if (res.data.email) {
-        localStorage.setItem("email", res.data.email);
-        window.location.href = "http://localhost:3000/home";
-      }
       if (res.data.type) {
-        setAlert({ show: true, msg: res.data.msg });
+        setAlert({ show: res.data.type, msg: res.data.msg });
         setDisableInput(false);
+      } else {
+        passCheck = true;
+        console.log(passCheck);
       }
     });
+
+    if (passCheck) {
+      const sendData = await Axios.post(
+        "http://localhost:3001/handletokens",
+        input
+      ).then((res) => {
+        if (res.data.email) {
+          localStorage.setItem("email", res.data.email);
+          window.location.href = "http://localhost:3000/home";
+        }
+        if (res.data.type) {
+          setAlert({ show: true, msg: res.data.msg });
+          setDisableInput(false);
+        }
+      });
+    }
   };
 
   useEffect(() => {
