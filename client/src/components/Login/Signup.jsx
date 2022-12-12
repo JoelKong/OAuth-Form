@@ -112,11 +112,17 @@ export const Signup = () => {
     userNameValidation();
     passwordValidation();
 
-    console.log(passConditions);
+    while (
+      passConditions.keyInput &&
+      passConditions.userName &&
+      passConditions.password
+    ) {
+      console.log("please");
+      break;
+    }
   };
 
   useEffect(() => {
-    //Check whether input is present
     if (
       input.keyInput[0] &&
       input.fullName[0] &&
@@ -128,6 +134,16 @@ export const Signup = () => {
       setDisable(true);
     }
   }, [input]);
+
+  useEffect(() => {
+    if (
+      passConditions.keyInput &&
+      passConditions.userName &&
+      passConditions.password
+    ) {
+      console.log("d");
+    }
+  }, [passConditions]);
 
   if (isLogIn) {
     return <Login />;
