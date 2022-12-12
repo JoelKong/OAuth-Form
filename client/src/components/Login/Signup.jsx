@@ -3,6 +3,8 @@ import { useGoogleLogin } from "@react-oauth/google";
 import { FcGoogle } from "react-icons/fc";
 import Axios from "axios";
 import { Login } from "./Login";
+import { Modal } from "./Modal";
+import axios from "axios";
 
 export const Signup = () => {
   //States
@@ -15,6 +17,7 @@ export const Signup = () => {
   const [isLogIn, setIsLogIn] = useState(false);
   const [disable, setDisable] = useState(true);
   const [disableInput, setDisableInput] = useState(false);
+  const [alert, setAlert] = useState({ show: false, msg: "" });
   const [passConditions, setPassConditions] = useState({
     keyInput: false,
     userName: false,
@@ -53,12 +56,12 @@ export const Signup = () => {
   const handleChange = (e) => {
     const name = e.target.name;
     const value = e.target.value;
-    setInput({ ...input, [name]: [value] });
+    setInput({ ...input, [name]: value });
   };
 
   //Email Validation
   const emailValidation = () => {
-    const email = input.keyInput[0];
+    const email = input.keyInput;
     const regEx = new RegExp(
       /[a-zA-Z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,8}(.[a-z{2,8}])?/g
     );
@@ -67,6 +70,7 @@ export const Signup = () => {
         return { ...prevState, ["keyInput"]: "true" };
       });
     } else if (!regEx.test(email) && email !== "") {
+      setAlert({ show: true, msg: "Invalid Fields" });
       setPassConditions((prevState) => {
         return { ...prevState, ["keyInput"]: "false" };
       });
@@ -74,13 +78,14 @@ export const Signup = () => {
   };
   //Username Validation
   const userNameValidation = () => {
-    const userName = input.userName[0];
+    const userName = input.userName;
     const regEx = new RegExp(/^(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/);
     if (regEx.test(userName)) {
       setPassConditions((prevState) => {
         return { ...prevState, ["userName"]: "true" };
       });
     } else if (!regEx.test(userName) && userName !== "") {
+      setAlert({ show: true, msg: "Invalid Fields" });
       setPassConditions((prevState) => {
         return { ...prevState, ["userName"]: "false" };
       });
@@ -89,7 +94,7 @@ export const Signup = () => {
 
   //Password Validation
   const passwordValidation = () => {
-    const password = input.password[0];
+    const password = input.password;
     const regEx = new RegExp(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/
     );
@@ -98,6 +103,7 @@ export const Signup = () => {
         return { ...prevState, ["password"]: "true" };
       });
     } else if (!regEx.test(password) && password !== "") {
+      setAlert({ show: true, msg: "Invalid Fields" });
       setPassConditions((prevState) => {
         return { ...prevState, ["password"]: "false" };
       });
@@ -106,14 +112,20 @@ export const Signup = () => {
 
   //Validate all
   const validateAll = () => {
-    if (input.fullName === "") {
-      return;
-    }
     emailValidation();
     userNameValidation();
     passwordValidation();
   };
 
+  //Pass Data to Server
+  const signUp = async () => {
+    const sendData = await Axios.post(
+      "http://localhost:3001/handletokens",
+      input
+    );
+  };
+
+  //Change this
   useEffect(() => {
     if (
       input.keyInput[0] &&
@@ -126,6 +138,13 @@ export const Signup = () => {
       setDisable(true);
     }
   }, [input]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setAlert({ show: false, msg: "" });
+    }, 3000);
+    return () => clearTimeout(timeout);
+  }, [alert]);
 
   useEffect(() => {
     if (
@@ -146,6 +165,7 @@ export const Signup = () => {
       <section className="center">
         <div className="login-form">
           <div className="login-form-header">Sign Up</div>
+          {alert.show && <Modal alert={alert} />}
           <form
             className="login-form-input"
             onSubmit={(e) => {
@@ -203,8 +223,12 @@ export const Signup = () => {
               }}
             />
             <button
-              disabled={disable}
-              className="login-form-button"
+              disabled={disable || disableInput}
+              className={
+                disableInput
+                  ? "login-form-button login-form-button-disable"
+                  : "login-form-button"
+              }
               onClick={() => validateAll()}
             >
               {disableInput ? (

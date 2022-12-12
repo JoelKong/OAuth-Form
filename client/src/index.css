@@ -12,11 +12,6 @@ body {
   animation: refresh 800ms 0s 1 forwards;
 }
 
-button:disabled {
-  cursor: not-allowed;
-  background-color: #b2dffc;
-}
-
 @keyframes refresh {
   0% {
     opacity: 0;

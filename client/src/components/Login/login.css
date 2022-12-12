@@ -17,6 +17,7 @@
 }
 
 .login-form {
+  position: relative;
   border: 1px solid black;
   border-radius: 10px;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
@@ -27,6 +28,26 @@
 
 .login-form::-webkit-scrollbar {
   display: none;
+}
+
+.login-form-modal {
+  position: absolute;
+  width: 50%;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 100px;
+  left: 25%;
+  height: 1.25rem;
+  border-radius: 0.5rem;
+  letter-spacing: 0.2rem;
+  text-transform: capitalize;
+}
+
+.login-form-modal__danger {
+  color: #721c24;
+  background: #f8d7da;
 }
 
 .login-form-header {
@@ -81,6 +102,15 @@
   color: white;
   background-color: #0095f6;
   cursor: pointer;
+}
+
+.login-form-button:disabled {
+  cursor: not-allowed;
+  background-color: #b2dffc;
+}
+
+.login-form-button-disable:disabled {
+  background-color: #0095f6;
 }
 
 .login-form-button-loader {

@@ -51,7 +51,20 @@ async function generateAccessToken(user) {
 
 //Check User Exist, Create User and Handling of Tokens
 app.post("/handletokens", async (req, res) => {
-  const { firstName, lastName, email, picture } = req.body;
+  console.log(req.body);
+  const {
+    //Google
+    firstName,
+    lastName,
+    email,
+    picture,
+    //Manual
+    keyInput,
+    fullName,
+    userName,
+    password,
+  } = req.body;
+
   const isUserExist = await UserModel.findOne({ email: email });
 
   if (isUserExist) {
