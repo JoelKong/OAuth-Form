@@ -49,6 +49,38 @@ async function generateAccessToken(user) {
   });
 }
 
+//Log In
+app.post("/login", async (req, res) => {
+  const { keyInput, password } = req.body;
+  console.log(keyInput[0]);
+
+  const isUserExist = await UserModel.findOne({
+    $and: [{ email: keyInput }, { password: password }],
+  });
+
+  if (isUserExist) {
+    const accessToken = jwt.sign(
+      { email: isUserExist.email, id: isUserExist._id },
+      config.get("ACCESS_TOKEN_SECRET"),
+      { expiresIn: "1m" }
+    );
+
+    const refreshToken = jwt.sign(
+      { email: isUserExist.email, id: isUserExist._id },
+      config.get("REFRESH_TOKEN_SECRET")
+    );
+
+    await UserModel.updateOne(
+      { _id: isUserExist._id },
+      { $set: { accessTokens: accessToken, refreshTokens: [refreshToken] } }
+    );
+
+    res.status(200).json({ email: isUserExist.email });
+  } else {
+    res.json({ type: true, msg: "Invalid User" });
+  }
+});
+
 //Check User Exist, Create User and Handling of Tokens
 app.post("/handletokens", async (req, res) => {
   const {
@@ -68,7 +100,7 @@ app.post("/handletokens", async (req, res) => {
     $or: [{ email: email }, { email: keyInput }],
   });
 
-  if (isUserExist && keyInput && isUserExist.password === null) {
+  if (isUserExist && keyInput && isUserExist.password === undefined) {
     await UserModel.updateOne(
       { _id: isUserExist._id },
       { $set: { password: password, userName: userName, fullName: fullName } }
@@ -78,7 +110,7 @@ app.post("/handletokens", async (req, res) => {
     return;
   }
 
-  if (email && isUserExist.profilePicture === null) {
+  if (email && isUserExist.profilePicture === undefined) {
     await UserModel.updateOne(
       { _id: isUserExist._id },
       { $set: { profilePicture: picture } }

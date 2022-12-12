@@ -3,12 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 import { FcGoogle } from "react-icons/fc";
 import { Signup } from "./Signup";
+import { Modal } from "./Modal";
 import Axios from "axios";
 
 export const Login = () => {
   //States
   const [input, setInput] = useState({ keyInput: "", password: "" });
   const [isSignUp, setIsSignUp] = useState(false);
+  const [disable, setDisable] = useState(false);
+  const [buttonState, setButtonState] = useState(false);
+  const [alert, setAlert] = useState({ show: false, msg: "" });
   const navigate = useNavigate();
   const user = localStorage.getItem("email");
 
@@ -41,6 +45,23 @@ export const Login = () => {
     },
   });
 
+  //Manual Log In
+  const logIn = async () => {
+    setButtonState(true);
+    const sendDataLogIn = await Axios.post(
+      "http://localhost:3001/login",
+      input
+    ).then((res) => {
+      if (res.data.type) {
+        setAlert({ show: true, msg: res.data.msg });
+        setButtonState(false);
+      } else {
+        localStorage.setItem("email", res.data.email);
+        window.location.href = "http://localhost:3000/home";
+      }
+    });
+  };
+
   const handleChange = (e) => {
     const name = e.target.name;
     const value = e.target.value;
@@ -50,10 +71,26 @@ export const Login = () => {
   const forgotPassword = () => {};
 
   useEffect(() => {
+    if (input.keyInput[0] && input.password[0]) {
+      setDisable(false);
+    } else {
+      setDisable(true);
+    }
+    return () => setDisable(true);
+  }, [input]);
+
+  useEffect(() => {
     if (user) {
       navigate("/home");
     }
   }, []);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setAlert({ show: false, msg: "" });
+    }, 3000);
+    return () => clearTimeout(timeout);
+  }, [alert]);
 
   if (!user && !isSignUp) {
     return (
@@ -61,6 +98,7 @@ export const Login = () => {
         <section className="center">
           <div className="login-form">
             <div className="login-form-header">Log In</div>
+            {alert.show && <Modal alert={alert} />}
             <form
               className="login-form-input"
               onSubmit={(e) => {
@@ -70,6 +108,7 @@ export const Login = () => {
               <input
                 autoFocus
                 autoComplete="true"
+                disabled={buttonState}
                 className="login-form-key"
                 name="keyInput"
                 placeholder="Username or Email"
@@ -83,6 +122,7 @@ export const Login = () => {
                 autoComplete="true"
                 className="login-form-password"
                 placeholder="Password"
+                disabled={buttonState}
                 name="password"
                 type="password"
                 maxLength="75"
@@ -91,14 +131,30 @@ export const Login = () => {
                   handleChange(e);
                 }}
               />
-              <button disabled className="login-form-button">
-                Log In
+              <button
+                disabled={disable || buttonState}
+                className={
+                  buttonState
+                    ? "login-form-button login-form-button-disable"
+                    : "login-form-button"
+                }
+                onClick={() => logIn()}
+              >
+                {buttonState ? (
+                  <div className="login-form-button-loader"></div>
+                ) : (
+                  "Log In"
+                )}
               </button>
               <div className="login-form-option">
                 <p>OR</p>
               </div>
               <div className="login-form-google">
-                <button onClick={login} className="login-form-google__button">
+                <button
+                  onClick={login}
+                  className="login-form-google__button"
+                  disabled={buttonState}
+                >
                   <FcGoogle className="login-form-google__icon" />
                   <p className="login-form-google__text">
                     Continue with Google
@@ -106,7 +162,11 @@ export const Login = () => {
                 </button>
               </div>
               <a
-                className="login-form-forgotpassword"
+                className={
+                  buttonState
+                    ? "login-form-forgotpassword login-form-signup-disable"
+                    : "login-form-forgotpassword"
+                }
                 draggable="true"
                 onClick={() => {
                   forgotPassword();
@@ -117,7 +177,11 @@ export const Login = () => {
               <p className="login-form-signuptext">
                 Don't have an account?{" "}
                 <a
-                  className="login-form-signup"
+                  className={
+                    buttonState
+                      ? "login-form-signup login-form-signup-disable"
+                      : "login-form-signup"
+                  }
                   draggable="true"
                   onClick={() => setIsSignUp(true)}
                 >
