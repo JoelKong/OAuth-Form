@@ -1,4 +1,4 @@
-import { React, useState, useEffect } from "react";
+import { React, useState, useEffect, useRef } from "react";
 import { useGoogleLogin } from "@react-oauth/google";
 import { FcGoogle } from "react-icons/fc";
 import Axios from "axios";
@@ -14,6 +14,7 @@ export const Signup = () => {
     userName: "",
     password: "",
   });
+  const [buttonState, setButtonState] = useState(false);
   const [isLogIn, setIsLogIn] = useState(false);
   const [disable, setDisable] = useState(true);
   const [disableInput, setDisableInput] = useState(false);
@@ -112,6 +113,7 @@ export const Signup = () => {
 
   //Validate all
   const validateAll = () => {
+    setButtonState(true);
     emailValidation();
     userNameValidation();
     passwordValidation();
@@ -122,10 +124,18 @@ export const Signup = () => {
     const sendData = await Axios.post(
       "http://localhost:3001/handletokens",
       input
-    );
+    ).then((res) => {
+      if (res.data.email) {
+        localStorage.setItem("email", res.data.email);
+        window.location.href = "http://localhost:3000/home";
+      }
+      if (res.data.type) {
+        setAlert({ show: true, msg: res.data.msg });
+        setDisableInput(false);
+      }
+    });
   };
 
-  //Change this
   useEffect(() => {
     if (
       input.keyInput[0] &&
@@ -137,6 +147,7 @@ export const Signup = () => {
     } else {
       setDisable(true);
     }
+    return () => setDisable(true);
   }, [input]);
 
   useEffect(() => {
@@ -153,6 +164,7 @@ export const Signup = () => {
       passConditions.password === "true"
     ) {
       setDisableInput(true);
+      signUp();
     }
   }, [passConditions]);
 
@@ -175,7 +187,11 @@ export const Signup = () => {
             <input
               autoFocus
               autoComplete="true"
-              className="login-form-key"
+              className={
+                passConditions.keyInput === "false" && buttonState
+                  ? "login-form-key login-form-key-error"
+                  : "login-form-key"
+              }
               name="keyInput"
               placeholder="Email"
               maxLength="40"
@@ -199,7 +215,11 @@ export const Signup = () => {
             />
             <input
               autoComplete="true"
-              className="login-form-password"
+              className={
+                passConditions.userName === "false" && buttonState
+                  ? "login-form-password login-form-password-error"
+                  : "login-form-password"
+              }
               name="userName"
               placeholder="Username"
               maxLength="20"
@@ -211,7 +231,11 @@ export const Signup = () => {
             />
             <input
               autoComplete="true"
-              className="login-form-password"
+              className={
+                passConditions.password === "false" && buttonState
+                  ? "login-form-password login-form-password-error"
+                  : "login-form-password"
+              }
               type="password"
               name="password"
               placeholder="Password"

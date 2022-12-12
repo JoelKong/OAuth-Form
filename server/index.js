@@ -51,7 +51,6 @@ async function generateAccessToken(user) {
 
 //Check User Exist, Create User and Handling of Tokens
 app.post("/handletokens", async (req, res) => {
-  console.log(req.body);
   const {
     //Google
     firstName,
@@ -65,7 +64,26 @@ app.post("/handletokens", async (req, res) => {
     password,
   } = req.body;
 
-  const isUserExist = await UserModel.findOne({ email: email });
+  const isUserExist = await UserModel.findOne({
+    $or: [{ email: email }, { email: keyInput }],
+  });
+
+  if (isUserExist && keyInput && isUserExist.password === null) {
+    await UserModel.updateOne(
+      { _id: isUserExist._id },
+      { $set: { password: password, userName: userName, fullName: fullName } }
+    );
+  } else if (isUserExist && keyInput && isUserExist.password) {
+    res.json({ type: true, msg: "User already exists" });
+    return;
+  }
+
+  if (email && isUserExist.profilePicture === null) {
+    await UserModel.updateOne(
+      { _id: isUserExist._id },
+      { $set: { profilePicture: picture } }
+    );
+  }
 
   if (isUserExist) {
     const accessToken = jwt.sign(
@@ -84,13 +102,16 @@ app.post("/handletokens", async (req, res) => {
       { $set: { accessTokens: accessToken, refreshTokens: [refreshToken] } }
     );
 
-    res.status(200).json({ email: email });
+    res.status(200).json({ email: isUserExist.email });
   } else {
     const result = await UserModel.create({
       firstName: firstName,
       lastName: lastName,
-      email: email,
+      fullName: fullName,
+      email: email || keyInput,
       profilePicture: picture,
+      userName: userName,
+      password: password,
     });
 
     const accessToken = jwt.sign(
