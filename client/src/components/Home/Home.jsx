@@ -42,13 +42,21 @@ export const Home = () => {
 
   if (user) {
     return (
-      <div>
+      <main className="background">
+        <div className="home-profile-picture">
+          <img
+            src={user.profilePicture}
+            alt="profilepicture"
+            className="home-profile-picture__img"
+          ></img>
+        </div>
+
         <p>{user.firstName}</p>
         <p>{user.lastName}</p>
         <p>{user.email}</p>
         <p>{user.profilePicture}</p>
         <button onClick={() => handleLogOut()}>Logout</button>
-      </div>
+      </main>
     );
   } else {
     return <div>Loading...</div>;

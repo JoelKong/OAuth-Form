@@ -1,0 +1,16 @@
+.home-profile-picture {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 4rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.home-profile-picture__img {
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+}
