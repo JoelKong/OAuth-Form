@@ -4,7 +4,7 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const cors = require("cors");
-// const bcrypt = require("bcryptjs");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const config = require("config");
 require("dotenv").config();
@@ -229,7 +229,7 @@ app.post("/logout", async (req, res) => {
 //Get Home data
 app.get("/home", authenticateToken, async (req, res) => {
   const getUser = await UserModel.findOne({ email: req.user.email });
-  const { firstName, lastName, email, profilePicture } = getUser;
-  const userData = { firstName, lastName, email, profilePicture };
+  const { firstName, lastName, email, profilePicture, fullName } = getUser;
+  const userData = { firstName, lastName, email, profilePicture, fullName };
   res.json(userData);
 });

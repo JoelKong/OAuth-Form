@@ -45,17 +45,22 @@ export const Home = () => {
       <main className="background">
         <div className="home-profile-picture">
           <img
-            src={user.profilePicture}
+            src={
+              user.profilePicture ||
+              "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_640.png"
+            }
             alt="profilepicture"
             className="home-profile-picture__img"
           ></img>
         </div>
 
-        <p>{user.firstName}</p>
-        <p>{user.lastName}</p>
-        <p>{user.email}</p>
-        <p>{user.profilePicture}</p>
-        <button onClick={() => handleLogOut()}>Logout</button>
+        <div className="home-center-div">
+          <p>Name: {user.fullName}</p>
+          <p>Email: {user.email}</p>
+          <button onClick={() => handleLogOut()} className="home-logout-button">
+            Logout
+          </button>
+        </div>
       </main>
     );
   } else {
