@@ -11,6 +11,7 @@ require("dotenv").config();
 
 //Import Collections
 const UserModel = require("./models/user");
+const { has } = require("config");
 
 //Connect to MongoDB Atlas
 mongoose.connect(process.env.MONGODB_URI || process.env.API_KEY);
@@ -54,13 +55,16 @@ app.post("/login", async (req, res) => {
   const { keyInput, password } = req.body;
 
   const isUserExist = await UserModel.findOne({
-    $or: [
-      { email: keyInput[0], password: password[0] },
-      { userName: keyInput[0], password: password[0] },
-    ],
+    $or: [{ email: keyInput[0] }, { userName: keyInput[0] }],
   });
 
   if (isUserExist) {
+    hashedPassword = await bcrypt.compare(password[0], isUserExist.password);
+  } else {
+    hashedPassword = false;
+  }
+
+  if (isUserExist && hashedPassword) {
     const accessToken = jwt.sign(
       { email: isUserExist.email, id: isUserExist._id },
       config.get("ACCESS_TOKEN_SECRET"),
@@ -110,6 +114,11 @@ app.post("/handletokens", async (req, res) => {
     password,
   } = req.body;
 
+  if (password) {
+    const salt = await bcrypt.genSalt(10);
+    hashedPassword = await bcrypt.hash(password, salt);
+  }
+
   const isUserExist = await UserModel.findOne({
     $or: [{ email: email }, { email: keyInput }],
   });
@@ -117,7 +126,13 @@ app.post("/handletokens", async (req, res) => {
   if (isUserExist && keyInput && isUserExist.password === undefined) {
     await UserModel.updateOne(
       { _id: isUserExist._id },
-      { $set: { password: password, userName: userName, fullName: fullName } }
+      {
+        $set: {
+          password: hashedPassword,
+          userName: userName,
+          fullName: fullName,
+        },
+      }
     );
   } else if (isUserExist && keyInput && isUserExist.password) {
     res.json({ type: true, msg: "User already exists" });
@@ -157,7 +172,7 @@ app.post("/handletokens", async (req, res) => {
       email: email || keyInput,
       profilePicture: picture,
       userName: userName,
-      password: password,
+      password: hashedPassword,
     });
 
     const accessToken = jwt.sign(
