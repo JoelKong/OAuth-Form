@@ -55,7 +55,7 @@ export const Home = () => {
         </div>
 
         <div className="home-center-div">
-          <p>Name: {user.fullName}</p>
+          <p>Name: {user.fullName || user.firstName + " " + user.lastName}</p>
           <p>Email: {user.email}</p>
           <button onClick={() => handleLogOut()} className="home-logout-button">
             Logout

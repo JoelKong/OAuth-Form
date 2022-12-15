@@ -58,7 +58,7 @@ app.post("/login", async (req, res) => {
     $or: [{ email: keyInput[0] }, { userName: keyInput[0] }],
   });
 
-  if (isUserExist) {
+  if (isUserExist.password) {
     hashedPassword = await bcrypt.compare(password[0], isUserExist.password);
   } else {
     hashedPassword = false;
@@ -116,7 +116,7 @@ app.post("/handletokens", async (req, res) => {
 
   if (password) {
     const salt = await bcrypt.genSalt(10);
-    hashedPassword = await bcrypt.hash(password, salt);
+    var hashedPassword = await bcrypt.hash(password, salt);
   }
 
   const isUserExist = await UserModel.findOne({
@@ -139,14 +139,14 @@ app.post("/handletokens", async (req, res) => {
     return;
   }
 
-  if (email && isUserExist.profilePicture === undefined) {
-    await UserModel.updateOne(
-      { _id: isUserExist._id },
-      { $set: { profilePicture: picture } }
-    );
-  }
-
   if (isUserExist) {
+    if (email && isUserExist.profilePicture === undefined) {
+      await UserModel.updateOne(
+        { _id: isUserExist._id },
+        { $set: { profilePicture: picture } }
+      );
+    }
+
     const accessToken = jwt.sign(
       { email: isUserExist.email, id: isUserExist._id },
       config.get("ACCESS_TOKEN_SECRET"),
