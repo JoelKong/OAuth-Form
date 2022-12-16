@@ -8,6 +8,7 @@ export const Forgetpassword = () => {
   const navigate = useNavigate();
 
   const sendLink = (e) => {
+    //do regex and check present in database, send using nodemailer
     e.preventDefault();
     setIsSubmit(true);
   };
