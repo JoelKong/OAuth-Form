@@ -77,6 +77,7 @@ export const Signup = () => {
       });
     }
   };
+
   //Username Validation
   const userNameValidation = () => {
     const userName = input.userName;

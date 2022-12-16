@@ -23,6 +23,7 @@ export const Forgetpassword = () => {
       );
       if (isRegistered.data) {
         setIsSubmit(true);
+        setIsLoading(false);
         setMessage("Link Successfully Sent! Check your email.");
       } else {
         setIsSubmit(false);

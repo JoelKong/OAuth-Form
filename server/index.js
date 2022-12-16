@@ -249,7 +249,7 @@ app.post("/checkregistered", async (req, res) => {
     const token = jwt.sign(
       { email: isRegistered.email, id: isRegistered._id },
       secret,
-      { expiresIn: "30m" }
+      { expiresIn: "5m" }
     );
     const link = `http://localhost:3000/reset-password/${isRegistered._id}/${token}`;
 
@@ -300,6 +300,30 @@ app.get("/reset-password/:id/:token", async (req, res) => {
     const verify = jwt.verify(token, secret);
     res.send(true);
   } catch (error) {
+    res.send(false);
+  }
+});
+
+//Reset password (Change password)
+app.post("/reset-password/:id/:token", async (req, res) => {
+  const { id, token } = req.params;
+  const { password } = req.body;
+
+  const oldUser = await UserModel.findOne({ _id: id });
+  if (!oldUser) {
+    return res.send(false);
+  }
+  const secret = config.get("REFRESH_TOKEN_SECRET") + oldUser.password;
+  try {
+    const verify = jwt.verify(token, secret);
+    const encryptedPassword = await bcrypt.hash(password, 10);
+    await UserModel.updateOne(
+      { _id: id },
+      { $set: { password: encryptedPassword } }
+    );
+    return res.send(true);
+  } catch (error) {
+    console.log(error);
     res.send(false);
   }
 });
