@@ -241,6 +241,16 @@ app.post("/logout", async (req, res) => {
   res.sendStatus(204);
 });
 
+//Forget password (check whether data present)
+app.post("/checkregistered", async (req, res) => {
+  const isRegistered = await UserModel.findOne({ email: req.body.email });
+  if (isRegistered) {
+    res.send(true);
+  } else {
+    res.send(false);
+  }
+});
+
 //Get Home data
 app.get("/home", authenticateToken, async (req, res) => {
   const getUser = await UserModel.findOne({ email: req.user.email });

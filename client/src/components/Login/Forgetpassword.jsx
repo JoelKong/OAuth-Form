@@ -1,16 +1,36 @@
 import { React, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Axios from "axios";
 
 export const Forgetpassword = () => {
   //States
   const [isSubmit, setIsSubmit] = useState(false);
+  const [message, setMessage] = useState("");
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
 
-  const sendLink = (e) => {
+  const sendLink = async (e) => {
     //do regex and check present in database, send using nodemailer
     e.preventDefault();
-    setIsSubmit(true);
+    const regEx = new RegExp(
+      /[a-zA-Z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,8}(.[a-z{2,8}])?/g
+    );
+    if (regEx.test(email)) {
+      const isRegistered = await Axios.post(
+        "http://localhost:3001/checkregistered",
+        { email: email }
+      );
+      if (isRegistered.data) {
+        setIsSubmit(true);
+        setMessage("Link Successfully Sent! Check your email.");
+      } else {
+        setIsSubmit(false);
+        setMessage("Email not Registered");
+      }
+    } else {
+      setIsSubmit(false);
+      setMessage("Invalid Email");
+    }
   };
 
   return (
@@ -19,11 +39,16 @@ export const Forgetpassword = () => {
         <div className="forget-password-form">
           <div className="login-form-header">Forgot Password?</div>
           <form className="login-form-input" onSubmit={(e) => sendLink(e)}>
-            {isSubmit && (
-              <p className="forget-password-form-linksent">
-                Link Successfully Sent! Check your email.
-              </p>
-            )}
+            <p
+              className={
+                isSubmit
+                  ? "forget-password-form-success"
+                  : "forget-password-form-error"
+              }
+            >
+              {message}
+            </p>
+
             <label htmlFor="email" className="forget-password-form-label">
               Enter your Email for a Reset Link:
             </label>
