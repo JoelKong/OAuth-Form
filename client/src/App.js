@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import { Login } from "./components/Login/Login.jsx";
 import { Home } from "./components/Home/Home.jsx";
+import { Forgetpassword } from "./components/Login/Forgetpassword.jsx";
 
 let account = localStorage.getItem("email");
 
@@ -18,6 +19,7 @@ function App() {
     <GoogleOAuthProvider clientId={process.env.CLIENT_ID}>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="forgetpassword" element={<Forgetpassword />} />
         <Route
           path="home"
           element={

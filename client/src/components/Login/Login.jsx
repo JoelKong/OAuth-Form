@@ -67,7 +67,9 @@ export const Login = () => {
     setInput({ ...input, [name]: [value] });
   };
 
-  const forgotPassword = () => {};
+  const forgotPassword = () => {
+    navigate("/forgetpassword");
+  };
 
   useEffect(() => {
     if (input.keyInput[0] && input.password[0]) {
