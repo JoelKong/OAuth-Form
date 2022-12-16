@@ -241,7 +241,7 @@ app.post("/logout", async (req, res) => {
   res.sendStatus(204);
 });
 
-//Forget password (check whether data present)
+//Forget password
 app.post("/checkregistered", async (req, res) => {
   const isRegistered = await UserModel.findOne({ email: req.body.email });
   if (isRegistered) {
@@ -271,7 +271,6 @@ app.post("/checkregistered", async (req, res) => {
     transporter.sendMail(mailOptions, function (error, info) {
       if (error) {
         console.log(error);
-        res.send(false);
         return;
       } else {
         console.log("Email sent: " + info.response);
@@ -280,6 +279,27 @@ app.post("/checkregistered", async (req, res) => {
 
     res.send(true);
   } else {
+    res.send(false);
+  }
+});
+
+//Reset passwsord (Check correct user)
+app.get("/reset-password/:id/:token", async (req, res) => {
+  const { id, token } = req.params;
+  try {
+    const oldUser = await UserModel.findOne({ _id: id });
+  } catch (error) {
+    return res.send(false);
+  }
+
+  if (!oldUser) {
+    return res.send(false);
+  }
+  const secret = config.get("REFRESH_TOKEN_SECRET") + oldUser.password;
+  try {
+    const verify = jwt.verify(token, secret);
+    res.send(true);
+  } catch (error) {
     res.send(false);
   }
 });

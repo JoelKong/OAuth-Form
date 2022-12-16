@@ -10,7 +10,6 @@ export const Forgetpassword = () => {
   const navigate = useNavigate();
 
   const sendLink = async (e) => {
-    //do regex and check present in database, send using nodemailer
     e.preventDefault();
     const regEx = new RegExp(
       /[a-zA-Z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,8}(.[a-z{2,8}])?/g
