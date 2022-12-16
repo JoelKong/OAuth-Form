@@ -1,6 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap");
 @import url("components/Login/login.css");
 @import url("components/Login/forgetpassword.css");
+@import url("components/Login/resetpassword.css");
 @import url("components/Home/home.css");
 
 * {

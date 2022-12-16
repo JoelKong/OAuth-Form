@@ -5,12 +5,14 @@ import Axios from "axios";
 export const Forgetpassword = () => {
   //States
   const [isSubmit, setIsSubmit] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
 
   const sendLink = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     const regEx = new RegExp(
       /[a-zA-Z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,8}(.[a-z{2,8}])?/g
     );
@@ -24,10 +26,12 @@ export const Forgetpassword = () => {
         setMessage("Link Successfully Sent! Check your email.");
       } else {
         setIsSubmit(false);
+        setIsLoading(false);
         setMessage("Email not Registered");
       }
     } else {
       setIsSubmit(false);
+      setIsLoading(false);
       setMessage("Invalid Email");
     }
   };
@@ -61,7 +65,11 @@ export const Forgetpassword = () => {
               autoFocus
             />
             <button className="login-form-button" onClick={(e) => sendLink(e)}>
-              Send Link
+              {isLoading ? (
+                <div className="login-form-button-loader"></div>
+              ) : (
+                "Send Link"
+              )}
             </button>
             <a
               className="login-form-signup forget-password-form-back"

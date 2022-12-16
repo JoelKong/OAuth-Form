@@ -249,7 +249,7 @@ app.post("/checkregistered", async (req, res) => {
     const token = jwt.sign(
       { email: isRegistered.email, id: isRegistered._id },
       secret,
-      { expiresIn: "5m" }
+      { expiresIn: "30m" }
     );
     const link = `http://localhost:3000/reset-password/${isRegistered._id}/${token}`;
 
@@ -287,7 +287,7 @@ app.post("/checkregistered", async (req, res) => {
 app.get("/reset-password/:id/:token", async (req, res) => {
   const { id, token } = req.params;
   try {
-    const oldUser = await UserModel.findOne({ _id: id });
+    var oldUser = await UserModel.findOne({ _id: id });
   } catch (error) {
     return res.send(false);
   }
