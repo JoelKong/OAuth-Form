@@ -7,11 +7,11 @@ const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const config = require("config");
+var nodemailer = require("nodemailer");
 require("dotenv").config();
 
 //Import Collections
 const UserModel = require("./models/user");
-const { has } = require("config");
 
 //Connect to MongoDB Atlas
 mongoose.connect(process.env.MONGODB_URI || process.env.API_KEY);
@@ -245,6 +245,39 @@ app.post("/logout", async (req, res) => {
 app.post("/checkregistered", async (req, res) => {
   const isRegistered = await UserModel.findOne({ email: req.body.email });
   if (isRegistered) {
+    const secret = config.get("REFRESH_TOKEN_SECRET") + isRegistered.password;
+    const token = jwt.sign(
+      { email: isRegistered.email, id: isRegistered._id },
+      secret,
+      { expiresIn: "5m" }
+    );
+    const link = `http://localhost:3000/reset-password/${isRegistered._id}/${token}`;
+
+    var transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "joelkong2001@gmail.com",
+        pass: process.env.GOOGLE_KEY,
+      },
+    });
+
+    var mailOptions = {
+      from: "joelkong2001@gmail.com",
+      to: isRegistered.email,
+      subject: "Joel Kong's OAuth Reset Password",
+      text: "Click this link to reset your password.\n" + link,
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log(error);
+        res.send(false);
+        return;
+      } else {
+        console.log("Email sent: " + info.response);
+      }
+    });
+
     res.send(true);
   } else {
     res.send(false);
