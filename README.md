@@ -23,12 +23,12 @@ Users can sign up for an account either through the Google OAuth or creating the
 ![SignUp](/assets/signup.gif)
 
 ## Log In
-On a new session, users can log in to their existing account by passing in their account details in the fields and passing the RegEx validation checks or through the Google OAuth. The password that they entered will be hashed and compared to the other hashed password in the database for validation.
+On a new session, users can log in to their existing account by passing in their account details in the fields and passing the validation checks or through the Google OAuth. The password that they entered will be hashed and compared to the other hashed password in the database for validation.
 
 ![LogIn](/assets/login.gif)
 
 ## Forgot Password
-If users forget their password, they can enter a valid email that is found in our database and an email with a link would be sent to them through nodemailer for them to reset their password. Upon passing the validation checks, they can access the site with their new password.
+If users forget their password, they can enter a valid email that is found in our database and an email with a link would be sent to them through nodemailer for them to reset their password. The link has their user id and a jwt token which would expire within a certain period of time. If the parameters are tampered in the link or upon expiry of the token, the link would be invalid and users wont have access to change their password. Upon passing the validation checks, they can access the site with their new password.
 
 ![Forgot](/assets/forgot.gif)
 
