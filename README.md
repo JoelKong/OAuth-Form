@@ -5,7 +5,7 @@ A secured OAuth form which handles authentication and validation by making use o
 
 ## Application Code
 ### Front-End
-Development: React.js and React Router (for routing)  
+Development: React.js and React Router  
 Compatibility: Desktop, Phones and Tablets  
 Tools used: RegEx (Validation for input fields), Axios (Make API calls to back end), Google OAuth (authentication through Google)  
 The front end makes use of React to organise the web app into reusable components and also manage the states of certain elements or objects.
