@@ -58,7 +58,7 @@ app.post("/login", async (req, res) => {
     $or: [{ email: keyInput[0] }, { userName: keyInput[0] }],
   });
 
-  if (isUserExist.password) {
+  if (isUserExist) {
     hashedPassword = await bcrypt.compare(password[0], isUserExist.password);
   } else {
     hashedPassword = false;
